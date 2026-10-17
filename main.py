@@ -4,7 +4,7 @@ import telebot
 
 BOT_TOKEN = "8650310728:AAHIzpkMPMhGowNy75z0t0LUiN6OIBt57aE"
 API_FOOTBALL_KEY = "f95358a2ff2959314d353d610a94500a"
-YOUR_CHAT_ID = "@my_lineup1_bot"
+YOUR_CHAT_ID = "8650310728"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 

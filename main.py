@@ -10,7 +10,7 @@ BOT_TOKEN = os.getenv("8650310728:AAHIzpkMPMhGowNy75z0t0LUiN6OIBt57aE")
 API_FOOTBALL_KEY = os.getenv("f95358a2ff2959314d353d610a94500a")
 
 # ВАЖНО: Укажите ваш ID в Telegram (в кавычках)
-YOUR_CHAT_ID = "8650310728"  # <-- ВСТАВЬТЕ СВОЙ ID СЮДА
+YOUR_CHAT_ID = "775785461"  # <-- ВСТАВЬТЕ СВОЙ ID СЮДА
 
 bot = telebot.TeleBot(BOT_TOKEN)
 notified_fixtures = set()

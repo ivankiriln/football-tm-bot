@@ -5,17 +5,14 @@ import requests
 import telebot
 from flask import Flask
 
-# Получаем ключи из настроек Render (Environment Variables)
-BOT_TOKEN = os.getenv("8650310728:AAHIzpkMPMhGowNy75z0t0LUiN6OIBt57aE")
-API_FOOTBALL_KEY = os.getenv("f95358a2ff2959314d353d610a94500a")
-
-# ВАЖНО: Укажите ваш ID в Telegram (в кавычках)
-YOUR_CHAT_ID = "775785461"  # <-- ВСТАВЬТЕ СВОЙ ID СЮДА
+# ВПИШИТЕ СВОИ ДАННЫЕ СЮДА НАПРЯМУЮ:
+BOT_TOKEN = "8650310728:AAHIzpkMPMhGowNy75z0t0LUiN6OIBt57aE"
+API_FOOTBALL_KEY = "f95358a2ff2959314d353d610a94500a"
+YOUR_CHAT_ID = "775785461"  # Ваш ID из Telegram[span_0](start_span)[span_0](end_span)
 
 bot = telebot.TeleBot(BOT_TOKEN)
 notified_fixtures = set()
 
-# Веб-сервер для удержания порта на Render
 app = Flask(__name__)
 
 
@@ -25,20 +22,17 @@ def home():
 
 
 def run_scanner():
-  print("🚀 Бот-сканер запущен и готов к поиску матчей...")
+  print("🚀 Бот-сканер запущен!")
 
-  # 1. Отправляем тестовое сообщение в Telegram при запуске
   try:
     bot.send_message(
         YOUR_CHAT_ID,
-        "🤖 <b>Бот-сканер успешно запущен!</b>\n\n"
-        "Система подключена и опрашивает лайв-матчи. Как только появится подходящая игра, вы получите сигнал.",
+        "🤖 Бот успешно запущен и начал сканирование матчей!",
         parse_mode="HTML",
     )
   except Exception as e:
     print(f"Ошибка отправки тестового сообщения: {e}")
 
-  # 2. Основной цикл сканирования
   while True:
     try:
       url = "https://v3.football.api-sports.io/fixtures"
@@ -61,18 +55,14 @@ def run_scanner():
           goals_home = fixture["goals"]["home"]
           goals_away = fixture["goals"]["away"]
 
-          # РАСШИРЕННЫЙ ФИЛЬТР (чтобы сигналы приходить чаще):
-          # Сканируем диапазон с 10 по 25 минуту со счетом 0:0
           if not (10 <= elapsed <= 25):
             continue
           if goals_home != 0 or goals_away != 0:
             continue
 
-          # Пропускаем матч, если по нему уже отправляли сигнал
           if fixture_id in notified_fixtures:
             continue
 
-          # Запрашиваем статистику по матчу
           stat_url = "https://v3.football.api-sports.io/fixtures/statistics"
           stat_response = requests.get(
               stat_url, headers=headers, params={"fixture": fixture_id}
@@ -102,29 +92,25 @@ def run_scanner():
               elif typ == "Yellow Cards":
                 yellow_cards += val
 
-          # МЯГКИЕ КРИТЕРИИ ДЛЯ ВАЛУЙНЫХ СИГНАЛОВ:
-          # Ударов от 2 до 12, в створ <= 2, желтых карточек <= 2
           if 2 <= total_shots <= 12 and shots_on_target <= 2 and yellow_cards <= 2:
             home_team = fixture["teams"]["home"]["name"]
             away_team = fixture["teams"]["away"]["name"]
             league = fixture["league"]["name"]
 
             msg = (
-                f"🎯 <b>Сигнал на ТМ 2.5 (Кэф ~2.00+)</b>\n\n"
+                f"🎯 <b>Сигнал на ТМ 2.5</b>\n\n"
                 f"🏆 <i>Лига:</i> {league}\n"
                 f"⚔️ <i>Матч:</i> {home_team} - {away_team}\n"
                 f"⏱ <i>Минута:</i> {elapsed}' | <i>Счет:</i> 0:0\n"
-                f"📊 <i>Статистика:</i> Всего ударов: {total_shots}, В створ: {shots_on_target}, ЖК: {yellow_cards}\n\n"
-                f"💡 <i>Рекомендация:</i> Низкая динамика, подходит для ТМ 2.5"
+                f"📊 <i>Статистика:</i> Всего ударов: {total_shots}, В створ: {shots_on_target}, ЖК: {yellow_cards}"
             )
 
             bot.send_message(YOUR_CHAT_ID, msg, parse_mode="HTML")
             notified_fixtures.add(fixture_id)
 
     except Exception as e:
-      print(f"Ошибка при работе сканера: {e}")
+      print(f"Ошибка: {e}")
 
-    # Интервал проверки — 60 секунд
     time.sleep(60)
 
 
